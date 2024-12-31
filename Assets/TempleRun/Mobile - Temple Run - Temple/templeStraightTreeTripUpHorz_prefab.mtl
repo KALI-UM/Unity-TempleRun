@@ -1,0 +1,12 @@
+newmtl Temple Run Material
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ns 32.000000
+map_Kd wallTexture.png
+
+newmtl Temple Run Trees Material
+Kd 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ns 32.000000
+map_Kd treeTexture.png
+
