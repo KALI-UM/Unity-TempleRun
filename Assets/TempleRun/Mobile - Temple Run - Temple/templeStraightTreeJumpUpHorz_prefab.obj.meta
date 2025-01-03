@@ -8,7 +8,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Temple
-    second: {fileID: -6908586154449395414, guid: 50c5fc2378e537f40af3d4385b460f3d, type: 3}
+    second: {fileID: -6908586154449395414, guid: 4871d8987ec21744b963db12e7017a77, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0

@@ -1,8 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Playables;
 using UnityEngine;
+using UnityEngine.Pool;
+using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class PlatformSpawner : MonoBehaviour
 {
@@ -13,29 +18,53 @@ public class PlatformSpawner : MonoBehaviour
         Plank,
     }
 
+    public int CurrDepth
+    {
+        get;
+        private set;
+    }
+
     public int themeChunkCount = 5;
+    public int nextPlatformDepth = 5;
+
     public PlatformTheme CurrentPlatformTheme { get; private set; }
 
-    public GameObject HorizonPrefab;
-    public GameObject VeticalPrefab;
+    [Serializable]
+    public class EnumPrefabPair
+    {
+        public Platform.Direction direction;
+        public GameObject prefab;
+    }
 
-    private Queue<GameObject> nextPlatforms = new();
-    private Queue<GameObject> usingPlatforms = new();
+    public List<EnumPrefabPair> platformPrefabs = new List<EnumPrefabPair>();
+
+    private Queue<(int depth, GameObject)> nextPlatforms = new();
+
+    Dictionary<Platform.Direction, ObjectPool<GameObject>> platformPools = new();
+    Dictionary<Platform.Obstacle, ObjectPool<GameObject>> obstaclePool = new();
 
 
     private void Awake()
     {
-        for (int i = 0; i < 10; i++)
+        platformPrefabs.ForEach(dirPrefab =>
         {
-            GameObject gobj = Instantiate(VeticalPrefab);
-            gobj.SetActive(false);
-            nextPlatforms.Enqueue(gobj);
+            ObjectPool<GameObject> pool = new
+            (
+                createFunc: () => Instantiate(dirPrefab.prefab),
+                actionOnGet: obj => GetPlatform(dirPrefab.direction, obj),
+                //actionOnRelease: obj => obj.Cleanup(),
+                //actionOnDestroy: obj => obj.Dispose(),
+                //collectionCheck: false,
+                defaultCapacity: 5,
+                maxSize: 10
+            );
+            platformPools.Add(dirPrefab.direction, pool);
         }
+        );
 
-        for (int i = 0; i < 2; i++)
-        {
-            ActiveNextPlatform();
-        }
+        var next = platformPools[Platform.Direction.Vertical].Get().GetComponent<Platform>();
+        ActivePlatform(next);
+        MakePlatform(CurrDepth + 2, nextPlatformDepth, next, Platform.Direction.Vertical);
     }
 
     private void OnEnable()
@@ -49,30 +78,61 @@ public class PlatformSpawner : MonoBehaviour
 
     }
 
-    public void ActiveNextPlatform()
+    public void OnExitPlatform()
     {
-        var next = nextPlatforms.Dequeue();
-        next.transform.position = GetNextPosition();
-        next.SetActive(true);
+        CurrDepth++;
 
-        usingPlatforms.Enqueue(next);
-
-        if(nextPlatforms.Count()<5)
+        while (nextPlatforms.Count() != 0 && nextPlatforms.Peek().depth < CurrDepth + nextPlatformDepth)
         {
-            MakePlatform();
+            var next = nextPlatforms.Dequeue().Item2.GetComponent<Platform>();
+            ActivePlatform(next);
+            MakeNextPlatform(CurrDepth + nextPlatformDepth, next, GetRandomDirection());
         }
     }
 
-    private void MakePlatform()
+
+    private void GetPlatform(Platform.Direction direction, GameObject platform )
     {
-        var old = usingPlatforms.Dequeue();
-        old.SetActive(false);
-        nextPlatforms.Enqueue(old);
+        platform.SetActive(false);
+        platform.GetComponent<Platform>().SetDirection(direction);
     }
 
-    private Vector3 GetNextPosition()
+    private void ActivePlatform(Platform platform)
     {
-        var nextPlatform = usingPlatforms.ToList().LastOrDefault();
-        return nextPlatform?.GetComponent<Platform>().NextPlatformPosition.position ?? new Vector3(0, 25, 0);
+        platform.gameObject.SetActive(true);
+        platform.SetPosition();
+    }
+
+    private void MakeNextPlatform(int nextDepth, Platform platform, Platform.Direction direction)
+    {
+        var nextTrs = platform.NextPlatforms;
+        foreach (var nextTr in nextTrs)
+        {
+            if (nextTr != null)
+            {
+                var next = platformPools[direction].Get();
+                next.GetComponent<Platform>().PrevPlatform = nextTr;
+                nextPlatforms.Enqueue((nextDepth, next));
+            }
+        }
+    }
+
+    private void MakePlatform(int startDepth, int count, Platform platform, Platform.Direction direction)
+    {
+        Platform curr = platform;
+        for (int i = 0; i < count; i++)
+        {
+            var nextTr = curr.NextPlatforms[0];
+            var next = platformPools[direction].Get().GetComponent<Platform>();
+            next.PrevPlatform = nextTr;
+            nextPlatforms.Enqueue((startDepth + i, next.gameObject));
+
+            curr = next;
+        }
+    }
+
+    private Platform.Direction GetRandomDirection()
+    {
+        return (Platform.Direction)Random.Range(0, typeof(Platform.Direction).GetEnumValues().Length - 1);
     }
 }
