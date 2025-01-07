@@ -6,7 +6,6 @@ public class ScrollingObject : MonoBehaviour
 {
     private PlayerMovement player;
 
-
     private void Awake()
     {
         player = GameObject.FindWithTag("Player").GetComponent<PlayerMovement>();

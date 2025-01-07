@@ -1,0 +1,66 @@
+{
+  "DirectionInfo": {
+    "HorzRight": {
+      "NextDirection": "HorzRight",
+      "NextDirection1": null
+    },
+    "HorzLeft": {
+      "NextDirection": "HorzLeft",
+      "NextDirection1": null
+    },
+    "VertUp": {
+      "NextDirection": "VertUp",
+      "NextDirection1": null
+    },
+    "VertDown": {
+      "NextDirection": "VertDown",
+      "NextDirection1": null
+    },
+    "TurnAUp": {
+      "NextDirection": "HorzLeft",
+      "NextDirection1": null
+    },
+    "TurnADown": {
+      "NextDirection": "HorzLeft",
+      "NextDirection1": null
+    },
+    "TurnBUp": {
+      "NextDirection": "HorzRight",
+      "NextDirection1": null
+    },
+    "TurnBDown": {
+      "NextDirection": "HorzRight",
+      "NextDirection1": null
+    },
+    "TurnCUp": {
+      "NextDirection": "VertUp",
+      "NextDirection1": null
+    },
+    "TurnCDown": {
+      "NextDirection": "VertDown",
+      "NextDirection1": null
+    },
+    "TurnDUp": {
+      "NextDirection": "VertUp",
+      "NextDirection1": null
+    },
+    "TurnDDown": {
+      "NextDirection": "VertDown",
+      "NextDirection1": null
+    }
+  },
+  "ConnectableDirectionGroup": {
+    "HorzRight": {
+      "ConnectableDirections": "HorzRight,TurnCUp,TurnCDown"
+    },
+    "HorzLeft": {
+      "ConnectableDirections": "HorzLeft,TurnDUp,TurnDDown"
+    },
+    "VertUp": {
+      "ConnectableDirections": "VertUp,TurnAUp,TurnBUp"
+    },
+    "VertDown": {
+      "ConnectableDirections": "VertDown,TurnADown,TurnBDown"
+    }
+  }
+}
