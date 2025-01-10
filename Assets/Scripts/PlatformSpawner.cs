@@ -10,6 +10,7 @@ using UnityEditor.Playables;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.UIElements;
+using static Platform;
 using Random = UnityEngine.Random;
 
 public class PlatformSpawner : MonoBehaviour
@@ -20,7 +21,6 @@ public class PlatformSpawner : MonoBehaviour
         Cliff,
         Plank,
     }
-
     public int CurrDepth
     {
         get;
@@ -41,6 +41,8 @@ public class PlatformSpawner : MonoBehaviour
     private Platform lastPlatform;
     private Queue<Platform> lastPlatforms = new();
     private Queue<Platform> nextPlatforms = new();
+    private Queue<Platform.Dir> dirs = new();
+
     private int depth = 1;
 
     private Dictionary<Platform.Dir, ObjectPool<GameObject>> platformPools = new();
@@ -60,7 +62,7 @@ public class PlatformSpawner : MonoBehaviour
 
         lastPlatforms.Enqueue(lastPlatform);
         Platform prev;
-        for (int i = 0; i < visiblePlatformsCount; i++)
+        for (int i = 0; i < visiblePlatformsCount - depth; i++)
         {
             prev = lastPlatforms.Dequeue();
             MakeNextPlatform(prev, Platform.Dir.VertUp);
@@ -176,6 +178,9 @@ public class PlatformSpawner : MonoBehaviour
         {
             if (nextTr != null)
             {
+                //NeedToChangeStaight(direction)
+
+
                 var next = platformPools[direction].Get().GetComponent<Platform>();
                 next.OnGetFromPool(depth + 1, nextTr);
                 nextPlatforms.Enqueue(next);
@@ -192,5 +197,24 @@ public class PlatformSpawner : MonoBehaviour
     public void ReleasePlatform(Platform platform)
     {
         platformPools[platform.Direction].Release(platform.gameObject);
+    }
+
+    private bool IsTurn(Platform.Dir dir)
+    {
+        return (dir == Platform.Dir.TurnAUp ||
+        dir == Platform.Dir.TurnADown ||
+        dir == Platform.Dir.TurnBUp ||
+        dir == Platform.Dir.TurnBDown ||
+        dir == Platform.Dir.TurnCUp ||
+        dir == Platform.Dir.TurnCDown ||
+        dir == Platform.Dir.TurnDUp ||
+        dir == Platform.Dir.TurnDDown);
+    }
+    private bool NeedToChangeStaight(Platform.Dir currDir)
+    {
+        bool turn = IsTurn(currDir);
+        bool turncnt= dirs.ToList().Count(dir => IsTurn(dir)) >= 2;
+
+        return turn&&turncnt;
     }
 }

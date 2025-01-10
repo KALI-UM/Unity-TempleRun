@@ -99,8 +99,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 6, y: 20, z: 19.999996}
-  m_Center: {x: 27, y: 10, z: 30}
+  m_Size: {x: 16, y: 20, z: 30}
+  m_Center: {x: 22, y: 10, z: 30}
 --- !u!114 &4423695942326047994
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,7 +127,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab: {fileID: 919132149155446097, guid: 4ac9ad5409893ca4cb3f51371e1b2e65, type: 3}
   direction: -4
-  nextDirection: -1
+  nextDirection: 1
   nextDirection1: 0
 --- !u!1 &6222534609518235732
 GameObject:

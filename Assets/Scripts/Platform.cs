@@ -77,6 +77,8 @@ public class Platform : MonoBehaviour
         get => nextDirection1;
     }
 
+    private bool isPassed = false;
+
     private void Awake()
     {
         platformSpawner = GameObject.FindWithTag("GameController").GetComponent<PlatformSpawner>();
@@ -93,15 +95,17 @@ public class Platform : MonoBehaviour
     public void OnGetFromPool(int depth, Transform prev)
     {
         prevPosition = prev;
-        this.depth = depth;
         gameObject.transform.position = prevPosition?.position ?? new(0, 0, 60);
+        this.depth = depth;
+        isPassed = false;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag(playerTag))
+        if (!isPassed && other.gameObject.CompareTag(playerTag))
         {
             platformSpawner.OnExitPlatform();
+            isPassed = true;
         }
     }
 
